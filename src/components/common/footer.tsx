@@ -63,13 +63,17 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-[#244E4A] mb-2">Redes Sociais</h4>
             <div className="flex gap-4 text-[#F4A300]">
-              <a href="#" aria-label="Facebook">
+              <a target="_blank" href="#" aria-label="Facebook">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" aria-label="Instagram">
+              <a
+                target="_blank"
+                href="https://www.instagram.com/kumiclass/"
+                aria-label="Instagram"
+              >
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" aria-label="Twitter">
+              <a target="_blank" href="#" aria-label="Twitter">
                 <Twitter className="w-5 h-5" />
               </a>
             </div>
