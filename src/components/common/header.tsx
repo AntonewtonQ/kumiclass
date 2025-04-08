@@ -31,9 +31,11 @@ export default function Header() {
 
       {/* Call to Action */}
       <div className="ml-4">
-        <Button className="bg-[#F4A300] text-white hover:bg-[#db9200] transition-colors">
-          Comece Agora
-        </Button>
+        <Link href="/login">
+          <Button className="bg-[#F4A300] cursor-pointer text-white hover:bg-[#db9200] transition-colors">
+            Comece Agora
+          </Button>
+        </Link>
       </div>
     </header>
   );

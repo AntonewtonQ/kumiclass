@@ -27,9 +27,11 @@ export default function Hero() {
             acadêmico.
           </p>
           <div className="mt-6">
-            <Button className="bg-[#F4A300] text-white hover:bg-[#db9200] text-lg px-6 py-3">
-              Comece Agora
-            </Button>
+            <Link href="/login">
+              <Button className="bg-[#F4A300] cursor-pointer text-white hover:bg-[#db9200] text-lg px-6 py-3">
+                Comece Agora
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

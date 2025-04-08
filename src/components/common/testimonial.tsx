@@ -1,16 +1,3 @@
-import Image from "next/image";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  BookOpen,
-  HelpCircle,
-  LineChart,
-  Clock,
-  GraduationCap,
-  Users,
-  Quote,
-} from "lucide-react";
-
 export default function Testimonial() {
   return (
     <>
@@ -30,7 +17,7 @@ export default function Testimonial() {
               Agora estou muito mais preparado para os exames nacionais!"
             </p>
             <p className="mt-4 font-semibold text-[#244E4A]">
-              João, estudante de 10º ano
+              João, estudante da 11ª classe
             </p>
           </div>
 
@@ -40,7 +27,7 @@ export default function Testimonial() {
               engajados nas aulas. É uma ferramenta incrível!"
             </p>
             <p className="mt-4 font-semibold text-[#244E4A]">
-              Professora Marta, docente de Biologia
+              Professora Marta, docente de Matemática
             </p>
           </div>
         </div>

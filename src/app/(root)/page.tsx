@@ -16,7 +16,6 @@ export default function Home() {
       <How />
       <Testimonial />
       <Call />
-      <Footer />
     </div>
   );
 }
