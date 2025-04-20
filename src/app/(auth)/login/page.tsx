@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Facebook, Mail } from "lucide-react";
 import GoogleLoginButton from "@/components/common/GoogleLoginButton";
+import GithubSignInButton from "@/components/common/GithubSignInButton";
 
 export default function LoginPage() {
   return (
@@ -18,6 +19,7 @@ export default function LoginPage() {
         <div className="mt-6 space-y-3">
           <div className="flex flex-col gap-3">
             <GoogleLoginButton />
+            <GithubSignInButton />
           </div>
         </div>
 

@@ -1,13 +1,15 @@
 import About from "@/components/common/about";
 import Benefits from "@/components/common/benefits";
 import Call from "@/components/common/call";
-import Footer from "@/components/common/footer";
-import Header from "@/components/common/header";
 import Hero from "@/components/common/hero";
 import How from "@/components/common/how";
 import Testimonial from "@/components/common/testimonial";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+  if (session) redirect("/dashboard");
   return (
     <div>
       <Hero />

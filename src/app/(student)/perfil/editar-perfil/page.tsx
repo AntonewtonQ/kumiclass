@@ -1,68 +1,105 @@
 "use client";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useSession } from "next-auth/react";
+import { createClient } from "@supabase/supabase-js";
 
-export default async function EditarPerfil() {
-  const session = await auth();
+export default function EditarPerfil() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [userDetails, setUserDetails] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!session?.user) redirect("/login");
+  useEffect(() => {
+    if (!session?.user) {
+      router.push("/login");
+      return;
+    }
 
-  // Buscar dados adicionais do usuário
-  const { data: userDetails, error } = await supabase
-    .from("user_details")
-    .select("*")
-    .eq("user_id", session.user.id)
-    .single();
+    const fetchUserDetails = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("user_details")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
 
-  if (error) {
-    console.error("Erro ao buscar dados do usuário:", error.message);
-  }
+        if (error) throw error;
+        setUserDetails(data);
+      } catch (error) {
+        console.error("Erro ao buscar dados:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Função para lidar com o envio do formulário
+    fetchUserDetails();
+  }, [session, router]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
-    // Pegar os valores do formulário
-    const formData = new FormData(event.target as HTMLFormElement);
-    const nome = formData.get("nome") as string;
-    const idade = formData.get("idade") as string;
-    const serie = formData.get("serie") as string;
-    const foto = formData.get("foto") as File | null;
-
-    let fotoUrl = userDetails?.photo_url;
-
-    // Se uma nova foto for enviada, fazer upload para o Supabase Storage
-    if (foto) {
-      const filePath = `${session.user.id}/profile/${foto.name}`;
-      const { data, error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, foto);
-
-      if (uploadError) {
-        console.error("Erro ao fazer upload da foto:", uploadError.message);
-      } else {
-        fotoUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${data?.path}`;
-      }
+    if (!session?.user) {
+      router.push("/login");
+      return;
     }
 
-    // Atualizar os dados do usuário na tabela "user_details"
-    const { error: updateError } = await supabase.from("user_details").upsert({
-      user_id: session.user.id,
-      name: nome,
-      age: idade,
-      year: serie,
-      photo_url: fotoUrl,
-    });
+    try {
+      const formData = new FormData(event.target as HTMLFormElement);
+      const birthDate = formData.get("birth_date")?.toString() || "";
+      const serie = formData.get("serie")?.toString() || "10";
+      const schoolName = formData.get("school_name")?.toString() || "";
+      const favoriteSubject =
+        formData.get("favorite_subject")?.toString() || "";
 
-    if (updateError) {
-      console.error("Erro ao atualizar dados do usuário:", updateError.message);
-    } else {
-      // Sucesso - redirecionar ou mostrar mensagem de sucesso
+      const supabaseAccessToken = session.supabaseAccessToken;
+      if (!supabaseAccessToken) {
+        throw new Error("Token de acesso não encontrado");
+      }
+
+      const supabaseClient = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          global: {
+            headers: {
+              Authorization: `Bearer ${supabaseAccessToken}`,
+            },
+          },
+        }
+      );
+
+      // Atualização dos dados
+      const { error } = await supabaseClient
+        .from("user_details")
+        .upsert({
+          user_id: session.user.id,
+          birth_date: birthDate || null,
+          year: parseInt(serie),
+          school_name: schoolName,
+          favorite_subject: favoriteSubject,
+          updated_at: new Date().toISOString(),
+          profile_completed: true,
+        })
+        .select();
+
+      if (error) throw error;
+
       alert("Perfil atualizado com sucesso!");
+      router.refresh();
+    } catch (error: any) {
+      console.error("Erro detalhado:", {
+        message: error.message,
+        code: error.code,
+        details: error,
+      });
+      alert(`Erro: ${error.message || "Falha ao atualizar perfil"}`);
     }
   };
+
+  if (!session || loading) {
+    return <div>Carregando...</div>;
+  }
 
   return (
     <section className="p-6 md:p-12 lg:p-20 max-w-3xl mx-auto">
@@ -75,28 +112,17 @@ export default async function EditarPerfil() {
         className="bg-white rounded-3xl shadow-md p-8 space-y-6"
       >
         <div className="space-y-2">
-          <label htmlFor="nome" className="block text-[#244E4A] font-medium">
-            Nome
+          <label
+            htmlFor="birth_date"
+            className="block text-[#244E4A] font-medium"
+          >
+            Data de Nascimento
           </label>
           <input
-            id="nome"
-            name="nome"
-            type="text"
-            defaultValue={session.user.name || ""}
-            className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F4A300]"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="idade" className="block text-[#244E4A] font-medium">
-            Idade
-          </label>
-          <input
-            id="idade"
-            name="idade"
-            type="number"
-            placeholder="16"
-            defaultValue={userDetails?.age || ""}
+            id="birth_date"
+            name="birth_date"
+            type="date"
+            defaultValue={userDetails?.birth_date || ""}
             className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F4A300]"
           />
         </div>
@@ -119,21 +145,40 @@ export default async function EditarPerfil() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="foto" className="block text-[#244E4A] font-medium">
-            Foto de Perfil
+          <label
+            htmlFor="school_name"
+            className="block text-[#244E4A] font-medium"
+          >
+            Nome da Escola
           </label>
           <input
-            id="foto"
-            name="foto"
-            type="file"
-            accept="image/*"
-            className="w-full p-2 border border-gray-300 rounded-xl"
+            id="school_name"
+            name="school_name"
+            type="text"
+            defaultValue={userDetails?.school_name || ""}
+            className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F4A300]"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label
+            htmlFor="favorite_subject"
+            className="block text-[#244E4A] font-medium"
+          >
+            Matéria Favorita
+          </label>
+          <input
+            id="favorite_subject"
+            name="favorite_subject"
+            type="text"
+            defaultValue={userDetails?.favorite_subject || ""}
+            className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F4A300]"
           />
         </div>
 
         <button
           type="submit"
-          className="mt-4 w-full bg-[#F4A300] hover:bg-[#e79c00] text-white font-semibold py-3 rounded-xl transition"
+          className="mt-6 w-full cursor-pointer bg-[#F4A300] hover:bg-[#e79c00] text-white font-semibold py-3 rounded-xl transition"
         >
           Salvar Alterações
         </button>

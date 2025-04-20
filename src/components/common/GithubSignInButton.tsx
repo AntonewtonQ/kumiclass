@@ -1,27 +1,27 @@
 import React from "react";
 import { Button } from "../ui/button";
-import { Mail } from "lucide-react";
+import { Github } from "lucide-react";
 import { signIn } from "@/lib/auth";
 
-const GoogleLoginButton = () => {
+const GithubSignInButton = () => {
   return (
     <>
       <form
         action={async () => {
           "use server";
-          await signIn("google");
+          await signIn("github");
         }}
       >
         <Button
+          className="flex w-full cursor-pointer justify-center items-center space-x-2"
           variant="outline"
-          className="w-full cursor-pointer flex items-center justify-center gap-2"
         >
-          <Mail className="h-5 w-5 text-[#DB4437]" />
-          Entrar com o Google
+          <Github size={35} />
+          <span>Entrar com o github</span>
         </Button>
       </form>
     </>
   );
 };
 
-export default GoogleLoginButton;
+export default GithubSignInButton;

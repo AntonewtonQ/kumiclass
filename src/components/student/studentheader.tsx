@@ -42,7 +42,7 @@ export default function StudentHeader() {
       <div className="ml-4">
         <DropdownMenu>
           <DropdownMenuTrigger className="focus:outline-none">
-            <User className="h-6 w-6 text-[#244E4A]" />
+            <User className="h-6 w-6 text-[#244E4A] cursor-pointer" />
           </DropdownMenuTrigger>
           <DropdownMenuContent className="mt-2">
             <DropdownMenuItem>
@@ -55,7 +55,7 @@ export default function StudentHeader() {
                   await signOut();
                 }}
               >
-                <Button variant="destructive" className="w-full">
+                <Button variant="destructive" className="w-full cursor-pointer">
                   Sair
                 </Button>
               </form>
