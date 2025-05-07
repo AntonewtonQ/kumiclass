@@ -1,18 +1,15 @@
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Flame, Brain, Play } from "lucide-react";
-import { auth } from "@/lib/auth";
+
 import { redirect } from "next/navigation";
 
 export default async function StudentDashboard() {
-  const session = await auth();
-
-  if (!session?.user) redirect("/login");
   return (
     <div className="p-6 md:p-10 bg-[#fdfaf6] min-h-screen text-[#244E4A]">
       {/* Saudação */}
       <h1 className="text-3xl md:text-4xl font-bold mb-4">
-        Olá, {session.user.name}! Pronto para aprender hoje?
+        Olá, {"nome"}! Pronto para aprender hoje?
       </h1>
 
       {/* Progresso geral */}

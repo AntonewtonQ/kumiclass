@@ -1,116 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
-import { useSession } from "next-auth/react";
-import { createClient } from "@supabase/supabase-js";
 
 export default function EditarPerfil() {
-  const { data: session } = useSession();
-  const router = useRouter();
-  const [userDetails, setUserDetails] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!session?.user) {
-      router.push("/login");
-      return;
-    }
-
-    const fetchUserDetails = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("user_details")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .maybeSingle();
-
-        if (error) throw error;
-        setUserDetails(data);
-      } catch (error) {
-        console.error("Erro ao buscar dados:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserDetails();
-  }, [session, router]);
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!session?.user) {
-      router.push("/login");
-      return;
-    }
-
-    try {
-      const formData = new FormData(event.target as HTMLFormElement);
-      const birthDate = formData.get("birth_date")?.toString() || "";
-      const serie = formData.get("serie")?.toString() || "10";
-      const schoolName = formData.get("school_name")?.toString() || "";
-      const favoriteSubject =
-        formData.get("favorite_subject")?.toString() || "";
-
-      const supabaseAccessToken = session.supabaseAccessToken;
-      if (!supabaseAccessToken) {
-        throw new Error("Token de acesso não encontrado");
-      }
-
-      const supabaseClient = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          global: {
-            headers: {
-              Authorization: `Bearer ${supabaseAccessToken}`,
-            },
-          },
-        }
-      );
-
-      // Atualização dos dados
-      const { error } = await supabaseClient
-        .from("user_details")
-        .upsert({
-          user_id: session.user.id,
-          birth_date: birthDate || null,
-          year: parseInt(serie),
-          school_name: schoolName,
-          favorite_subject: favoriteSubject,
-          updated_at: new Date().toISOString(),
-          profile_completed: true,
-        })
-        .select();
-
-      if (error) throw error;
-
-      alert("Perfil atualizado com sucesso!");
-      router.refresh();
-    } catch (error: any) {
-      console.error("Erro detalhado:", {
-        message: error.message,
-        code: error.code,
-        details: error,
-      });
-      alert(`Erro: ${error.message || "Falha ao atualizar perfil"}`);
-    }
-  };
-
-  if (!session || loading) {
-    return <div>Carregando...</div>;
-  }
-
   return (
     <section className="p-6 md:p-12 lg:p-20 max-w-3xl mx-auto">
       <h1 className="text-3xl md:text-4xl font-bold text-[#244E4A] mb-6">
         Editar Perfil
       </h1>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-3xl shadow-md p-8 space-y-6"
-      >
+      <form className="bg-white rounded-3xl shadow-md p-8 space-y-6">
         <div className="space-y-2">
           <label
             htmlFor="birth_date"
@@ -122,7 +19,7 @@ export default function EditarPerfil() {
             id="birth_date"
             name="birth_date"
             type="date"
-            defaultValue={userDetails?.birth_date || ""}
+            defaultValue={""}
             className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F4A300]"
           />
         </div>
@@ -135,7 +32,7 @@ export default function EditarPerfil() {
             id="serie"
             name="serie"
             className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F4A300]"
-            defaultValue={userDetails?.year || "10"}
+            defaultValue={"10"}
           >
             <option value="9">9º Ano</option>
             <option value="10">10º Ano</option>
@@ -155,7 +52,7 @@ export default function EditarPerfil() {
             id="school_name"
             name="school_name"
             type="text"
-            defaultValue={userDetails?.school_name || ""}
+            defaultValue={""}
             className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F4A300]"
           />
         </div>
@@ -171,7 +68,7 @@ export default function EditarPerfil() {
             id="favorite_subject"
             name="favorite_subject"
             type="text"
-            defaultValue={userDetails?.favorite_subject || ""}
+            defaultValue={""}
             className="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F4A300]"
           />
         </div>
