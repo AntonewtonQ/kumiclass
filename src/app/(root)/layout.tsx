@@ -1,6 +1,6 @@
 import Footer from "@/components/common/footer";
 import Header from "@/components/common/header";
-import { auth } from "@/lib/auth";
+
 import { redirect } from "next/navigation";
 import React, { ReactNode } from "react";
 
