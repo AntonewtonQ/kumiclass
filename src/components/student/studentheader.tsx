@@ -8,7 +8,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { signOut } from "@/lib/auth";
 
 export default function StudentHeader() {
   return (
@@ -49,12 +48,7 @@ export default function StudentHeader() {
               <Link href="/perfil">Perfil</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <form
-                action={async () => {
-                  "use server";
-                  await signOut();
-                }}
-              >
+              <form>
                 <Button variant="destructive" className="w-full cursor-pointer">
                   Sair
                 </Button>
